@@ -2,115 +2,43 @@
 
 ## Project Summary
 
-In this project you will build and explain a small music recommender system.
-
-Your goal is to:
-
-- Represent songs and a user "taste profile" as data
-- Design a scoring rule that turns that data into recommendations
-- Evaluate what your system gets right and wrong
-- Reflect on how this mirrors real world AI recommenders
-
-Replace this paragraph with your own summary of what your version does.
+This project is a simple content-based music recommender system built in Python. It recommends songs by comparing a user's preferred genre, mood, and energy level with the attributes of songs in a small music catalog. Each song receives a score based on how closely it matches the user's preferences, and the highest scoring songs are recommended along with a short explanation of why they were selected.
 
 ---
 
-## How The System Works
+## How the System Works
 
-Explain your design in plain language.
+This recommender uses a content-based approach. Instead of learning from other users, it compares the characteristics of each song with the user's preferences.
 
-Some prompts to answer:
+### Song Features
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+Each song includes the following information:
 
-You can include a simple diagram or bullet list if helpful.
+- Genre
+- Mood
+- Energy
+- Tempo
+- Valence
+- Danceability
+- Acousticness
 
-Claude finished the response
-Synthesized documentation framework for recommendation system overview
-Synthesized documentation framework for recommendation system overview
+### User Profile
 
-Here's a draft for the How The System Works section of your README. Since this needs to reflect your understanding, treat this as a starting point — tweak the wording so it sounds like you, and adjust priorities if you disagree with the weighting choices.
+The user provides:
 
-How The System Works
+- Preferred genre
+- Preferred mood
+- Preferred energy level
 
-Real-world music platforms like Spotify and YouTube generally combine two approaches to predict what a user will love next. Collaborative filtering looks at patterns across many users — if listeners with similar histories to you enjoyed a song, it gets recommended to you too, regardless of what the song actually sounds like. Content-based filtering instead looks at the attributes of the songs themselves — genre, tempo, energy, mood — and compares them against a profile of what a specific user tends to prefer. Large-scale systems blend both, along with implicit signals like skips, replays, and listening duration, to constantly refine their predictions. This project simulates the content-based half of that process: rather than learning from crowd behavior, it builds a UserProfile representing a listener's preferences and scores each Song in the catalog by how closely its attributes match that profile.
+### Scoring Process
 
-My version prioritizes energy and mood/valence over strict genre matching, because a listener's "vibe" in the moment (e.g., wanting something chill or something intense) tends to predict enjoyment better than genre alone — two songs in different genres can feel more similar than two songs in the same genre. Genre and secondary attributes like danceability and acousticness are used as supporting signals rather than the primary driver of a recommendation. The system separates scoring (how well one song matches the profile) from ranking (how the full list of scored songs gets ordered and presented), which will let me later experiment with ranking strategies — like injecting variety — without changing the underlying scoring logic.
+Each song is scored using three features:
 
-Features used by Song:
+- A matching genre receives **2 points**.
+- A matching mood receives **1 point**.
+- Songs with an energy level closer to the user's preferred energy receive a higher score.
 
-genre (categorical)
-mood (categorical)
-energy (numerical, 0–1)
-tempo_bpm (numerical)
-valence (numerical, 0–1)
-danceability (numerical, 0–1)
-acousticness (numerical, 0–1)
-
-Features used by UserProfile:
-
-preferred_genre
-preferred_mood
-preferred_energy (target value, 0–1)
-preferred_tempo_bpm (target value)
-preferred_valence (target value, 0–1)
-optionally: preferred_danceability, preferred_acousticness for later refinement
-
-A couple of things worth doing before you paste this in:
-
-Decide if you actually want UserProfile to store target values (e.g. "I like energy around 0.5") vs. a liked songs list it derives preferences from — both are valid designs, and it changes how Phase 3 implementation goes.
-Make sure the paragraph reflects your own reasoning from Step 3 (if you ended up weighting genre higher than mood, flip the emphasis).
-
-Want help sketching out the actual Song and UserProfile class skeletons next, or are you waiting until Phase 3 for that? And whenever you have it, go ahead and paste Phase 2 — I want to make sure the design phase lines up with what you write here.
-
-remoce all emdashes btw
-
-Recognized meta-instruction; declined to process formatting directive
-Recognized meta-instruction; declined to process formatting directive
-
-Here's the revised version with all em-dashes removed:
-
-How The System Works
-
-Real-world music platforms like Spotify and YouTube generally combine two approaches to predict what a user will love next. Collaborative filtering looks at patterns across many users: if listeners with similar histories to you enjoyed a song, it gets recommended to you too, regardless of what the song actually sounds like. Content-based filtering instead looks at the attributes of the songs themselves, such as genre, tempo, energy, and mood, and compares them against a profile of what a specific user tends to prefer. Large-scale systems blend both approaches, along with implicit signals like skips, replays, and listening duration, to constantly refine their predictions. This project simulates the content-based half of that process. Rather than learning from crowd behavior, it builds a UserProfile representing a listener's preferences and scores each Song in the catalog by how closely its attributes match that profile.
-
-My version prioritizes energy and mood/valence over strict genre matching, because a listener's "vibe" in the moment (wanting something chill or something intense, for example) tends to predict enjoyment better than genre alone. Two songs in different genres can feel more similar than two songs in the same genre. Genre and secondary attributes like danceability and acousticness are used as supporting signals rather than the primary driver of a recommendation. The system separates scoring (how well one song matches the profile) from ranking (how the full list of scored songs gets ordered and presented). This separation will let me later experiment with ranking strategies, like injecting variety, without changing the underlying scoring logic.
-
-Features used by Song:
-
-genre (categorical)
-mood (categorical)
-energy (numerical, 0 to 1)
-tempo_bpm (numerical)
-valence (numerical, 0 to 1)
-danceability (numerical, 0 to 1)
-acousticness (numerical, 0 to 1)
-
-Features used by UserProfile:
-
-preferred_genre
-preferred_mood
-preferred_energy (target value, 0 to 1)
-preferred_tempo_bpm (target value)
-preferred_valence (target value, 0 to 1)
-optionally: preferred_danceability, preferred_acousticness for later refinement
-
-### User Profile (planned)
-
-\`\`\`python
-user_profile = {
-    "favorite_genre": "lofi",
-    "favorite_mood": "chill",
-    "target_energy": 0.40,
-    "target_valence": 0.60,
-    "target_tempo_bpm": 80,
-    "target_danceability": 0.55,
-}
-\`\`\`
+After every song has been scored, the songs are sorted from highest to lowest score, and the top recommendations are returned with an explanation showing why each song was recommended.
 
 ---
 
@@ -118,34 +46,45 @@ user_profile = {
 
 ### Setup
 
-1. Create a virtual environment (optional but recommended):
+1. (Optional) Create a virtual environment.
 
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate      # Mac or Linux
-   .venv\Scripts\activate         # Windows
+```bash
+python -m venv .venv
+```
 
-2. Install dependencies
+Windows:
+
+```bash
+.venv\Scripts\activate
+```
+
+Mac/Linux:
+
+```bash
+source .venv/bin/activate
+```
+
+2. Install dependencies.
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Run the app:
+3. Run the program.
 
 ```bash
 python -m src.main
 ```
 
-### Running Tests
+---
 
-Run the starter tests with:
+## Running Tests
+
+Run the tests with:
 
 ```bash
 pytest
 ```
-
-You can add more tests in `tests/test_recommender.py`.
 
 ---
 
@@ -184,44 +123,24 @@ Why: Energy similarity (+0.89)
 --------------------------------------------------
 ```
 
-**Screenshot or video** *(optional)*: <!-- Insert a screenshot or demo video link here -->
-
 ---
 
-## Experiments You Tried
+## Experiments
 
-Use this section to document the experiments you ran. For example:
+I tested the recommender using several different user profiles, including High Energy Pop, Chill Lofi, Deep Intense Rock, and a Happy Classical Fan. Each profile produced different recommendations based on the selected preferences.
 
-- What happened when you changed the weight on genre from 2.0 to 0.5
-- What happened when you added tempo or valence to the score
-- How did your system behave for different types of users
+I also experimented with the scoring algorithm by reducing the genre weight from **2.0** to **1.0** and doubling the importance of energy. After making this change, songs with energy levels closer to the user's preferred energy ranked higher, even when they belonged to a different genre. This demonstrated how changing feature weights directly affects recommendation results.
 
 ---
 
 ## Limitations and Risks
 
-Summarize some limitations of your recommender.
-
-Examples:
-
-- It only works on a tiny catalog
-- It does not understand lyrics or language
-- It might over favor one genre or mood
-
-You will go deeper on this in your model card.
+This recommender only uses genre, mood, and energy when scoring songs. It does not consider tempo, lyrics, listening history, or user feedback. Because the dataset contains only 18 songs, the same recommendations may appear for different users. The algorithm also depends on exact genre and mood matches, so similar songs with different labels may receive lower scores.
 
 ---
 
 ## Reflection
 
-Read and complete `model_card.md`:
+This project helped me understand how recommendation systems use user preferences and item features to make personalized suggestions. I learned that even a simple scoring algorithm can produce recommendations that feel relevant when the right features are chosen.
 
-[**Model Card**](model_card.md)
-
-Write 1 to 2 paragraphs here about what you learned:
-
-- about how recommenders turn data into predictions
-- about where bias or unfairness could show up in systems like this
-
-
-
+I also learned that recommendation systems have limitations. Small datasets and simple scoring rules can introduce bias and reduce recommendation diversity. Testing different user profiles and changing the scoring weights showed how small changes in the algorithm can significantly affect the recommendations.
