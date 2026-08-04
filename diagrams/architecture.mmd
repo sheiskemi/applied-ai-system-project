@@ -1,12 +1,39 @@
 ﻿flowchart TD
-    A[User Input: mood/preference/request] --> B[Planner]
-    B -->|generates step-by-step plan| C[Logger]
-    B --> D[Actor]
-    D -->|executes plan steps| E[Music Recommendation Engine]
-    E --> F[Checker]
-    F -->|pass| G[Final Output to User]
-    F -->|fail| H[Retry/Revise]
-    H --> D
-    C -.logs every step.-> B
-    C -.logs every step.-> D
-    C -.logs every step.-> F
+    U[User: free-text request] --> P
+
+    subgraph Plan["PLAN - src/planner.py"]
+        P{ANTHROPIC_API_KEY set?}
+        P -->|yes| P1[LLM call: parse preferences + build 4-step plan]
+        P -->|no| P2[Deterministic keyword parsing fallback]
+        P1 --> PLAN_OUT[Structured preferences + plan]
+        P2 --> PLAN_OUT
+    end
+
+    PLAN_OUT --> A1
+
+    subgraph Act["ACT - src/actor.py"]
+        A1[validate_input] --> A2[load_catalog]
+        A2 --> A3[score_and_rank]
+        A3 --> A4[format_output]
+    end
+
+    A4 --> D1
+
+    subgraph Check["CHECK - src/checker.py"]
+        D1[Deterministic checks: empty results, invalid scores, genre-only mismatch]
+        D1 -->|pass| D2[Optional LLM semantic check]
+        D1 -->|fail| FAIL
+        D2 -->|fail| FAIL
+        D2 -->|pass| PASS
+    end
+
+    PASS --> OUT[Final recommendations to user]
+    FAIL --> R{Attempts less than MAX_ATTEMPTS 3?}
+    R -->|yes| RP[Re-plan: e.g. relax genre constraint]
+    RP --> A1
+    R -->|no| GIVEUP[Return best-effort result + failure log]
+
+    L[(Logger: timestamps for every plan/act/check/retry event)]
+    Plan -.-> L
+    Act -.-> L
+    Check -.-> L
