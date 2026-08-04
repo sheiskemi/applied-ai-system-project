@@ -1,0 +1,12 @@
+﻿flowchart TD
+    A[User Input: mood/preference/request] --> B[Planner]
+    B -->|generates step-by-step plan| C[Logger]
+    B --> D[Actor]
+    D -->|executes plan steps| E[Music Recommendation Engine]
+    E --> F[Checker]
+    F -->|pass| G[Final Output to User]
+    F -->|fail| H[Retry/Revise]
+    H --> D
+    C -.logs every step.-> B
+    C -.logs every step.-> D
+    C -.logs every step.-> F
