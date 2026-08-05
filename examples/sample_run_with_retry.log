@@ -1,0 +1,145 @@
+2026-08-05 00:49:07 [INFO] [logger] Logging to logs\run_20260804T234907Z.log
+2026-08-05 00:49:07 [INFO] [agent] === Attempt 1/3 for request: 'I want upbeat happy pop songs for a workout' ===
+2026-08-05 00:49:07 [WARNING] [llm_client] ANTHROPIC_API_KEY not set; LLM features will use deterministic fallback
+2026-08-05 00:49:07 [INFO] [planner] [PLAN] (deterministic_fallback) preferences={'genre': 'pop', 'mood': 'happy', 'energy': 0.9} strategy={'require_genre_match': True, 'k': 5} steps=['validate_input', 'load_catalog', 'score_and_rank', 'format_output']
+2026-08-05 00:49:07 [INFO] [actor] [ACT] executing plan steps: ['validate_input', 'load_catalog', 'score_and_rank', 'format_output']
+2026-08-05 00:49:07 [INFO] [actor] [ACT] validate_input: checking {'genre': 'pop', 'mood': 'happy', 'energy': 0.9}
+2026-08-05 00:49:07 [INFO] [actor] [ACT] validate_input: OK -> {'genre': 'pop', 'mood': 'happy', 'energy': 0.9}
+2026-08-05 00:49:07 [INFO] [actor] [ACT] load_catalog: reading data/songs.csv
+2026-08-05 00:49:07 [INFO] [actor] [ACT] load_catalog: loaded 18 songs
+2026-08-05 00:49:07 [INFO] [actor] [ACT] score_and_rank: filtered catalog to 2 songs matching genre=pop
+2026-08-05 00:49:07 [INFO] [actor] [ACT] score_and_rank: produced 2 recommendation(s)
+2026-08-05 00:49:07 [INFO] [actor] [ACT] format_output: formatting 2 recommendation(s)
+2026-08-05 00:49:07 [INFO] [checker] [CHECK] (deterministic) passed=True reason=structural checks passed, top score 3.92
+2026-08-05 00:49:07 [INFO] [checker] [CHECK] llm_semantic_check: skipped (LLM unavailable or response unusable)
+2026-08-05 00:49:07 [INFO] [checker] [CHECK] (skipped) passed=True reason=LLM semantic check unavailable; deterministic pass stands
+2026-08-05 00:49:07 [INFO] [agent] === Attempt 1 PASSED check (skipped layer) ===
+2026-08-05 00:49:07 [INFO] [agent] === Attempt 1/3 for request: 'Something chill and relaxed for studying, lofi vibes' ===
+2026-08-05 00:49:07 [INFO] [planner] [PLAN] (deterministic_fallback) preferences={'genre': 'lofi', 'mood': 'chill', 'energy': 0.3} strategy={'require_genre_match': True, 'k': 5} steps=['validate_input', 'load_catalog', 'score_and_rank', 'format_output']
+2026-08-05 00:49:07 [INFO] [actor] [ACT] executing plan steps: ['validate_input', 'load_catalog', 'score_and_rank', 'format_output']
+2026-08-05 00:49:07 [INFO] [actor] [ACT] validate_input: checking {'genre': 'lofi', 'mood': 'chill', 'energy': 0.3}
+2026-08-05 00:49:07 [INFO] [actor] [ACT] validate_input: OK -> {'genre': 'lofi', 'mood': 'chill', 'energy': 0.3}
+2026-08-05 00:49:07 [INFO] [actor] [ACT] load_catalog: reading data/songs.csv
+2026-08-05 00:49:07 [INFO] [actor] [ACT] load_catalog: loaded 18 songs
+2026-08-05 00:49:07 [INFO] [actor] [ACT] score_and_rank: filtered catalog to 3 songs matching genre=lofi
+2026-08-05 00:49:07 [INFO] [actor] [ACT] score_and_rank: produced 3 recommendation(s)
+2026-08-05 00:49:07 [INFO] [actor] [ACT] format_output: formatting 3 recommendation(s)
+2026-08-05 00:49:07 [INFO] [checker] [CHECK] (deterministic) passed=True reason=structural checks passed, top score 3.95
+2026-08-05 00:49:07 [INFO] [checker] [CHECK] llm_semantic_check: skipped (LLM unavailable or response unusable)
+2026-08-05 00:49:07 [INFO] [checker] [CHECK] (skipped) passed=True reason=LLM semantic check unavailable; deterministic pass stands
+2026-08-05 00:49:07 [INFO] [agent] === Attempt 1 PASSED check (skipped layer) ===
+2026-08-05 00:49:07 [INFO] [agent] === Attempt 1/3 for request: 'Deep intense rock to get pumped up' ===
+2026-08-05 00:49:07 [INFO] [planner] [PLAN] (deterministic_fallback) preferences={'genre': 'rock', 'mood': 'intense', 'energy': 0.9} strategy={'require_genre_match': True, 'k': 5} steps=['validate_input', 'load_catalog', 'score_and_rank', 'format_output']
+2026-08-05 00:49:07 [INFO] [actor] [ACT] executing plan steps: ['validate_input', 'load_catalog', 'score_and_rank', 'format_output']
+2026-08-05 00:49:07 [INFO] [actor] [ACT] validate_input: checking {'genre': 'rock', 'mood': 'intense', 'energy': 0.9}
+2026-08-05 00:49:07 [INFO] [actor] [ACT] validate_input: OK -> {'genre': 'rock', 'mood': 'intense', 'energy': 0.9}
+2026-08-05 00:49:07 [INFO] [actor] [ACT] load_catalog: reading data/songs.csv
+2026-08-05 00:49:07 [INFO] [actor] [ACT] load_catalog: loaded 18 songs
+2026-08-05 00:49:07 [INFO] [actor] [ACT] score_and_rank: filtered catalog to 1 songs matching genre=rock
+2026-08-05 00:49:07 [INFO] [actor] [ACT] score_and_rank: produced 1 recommendation(s)
+2026-08-05 00:49:07 [INFO] [actor] [ACT] format_output: formatting 1 recommendation(s)
+2026-08-05 00:49:07 [INFO] [checker] [CHECK] (deterministic) passed=True reason=structural checks passed, top score 3.99
+2026-08-05 00:49:07 [INFO] [checker] [CHECK] llm_semantic_check: skipped (LLM unavailable or response unusable)
+2026-08-05 00:49:07 [INFO] [checker] [CHECK] (skipped) passed=True reason=LLM semantic check unavailable; deterministic pass stands
+2026-08-05 00:49:07 [INFO] [agent] === Attempt 1 PASSED check (skipped layer) ===
+2026-08-05 00:49:07 [INFO] [agent] === Attempt 1/3 for request: "I'm a happy classical music fan feeling energetic" ===
+2026-08-05 00:49:07 [INFO] [planner] [PLAN] (deterministic_fallback) preferences={'genre': 'classical', 'mood': 'happy', 'energy': 0.9} strategy={'require_genre_match': True, 'k': 5} steps=['validate_input', 'load_catalog', 'score_and_rank', 'format_output']
+2026-08-05 00:49:07 [INFO] [actor] [ACT] executing plan steps: ['validate_input', 'load_catalog', 'score_and_rank', 'format_output']
+2026-08-05 00:49:07 [INFO] [actor] [ACT] validate_input: checking {'genre': 'classical', 'mood': 'happy', 'energy': 0.9}
+2026-08-05 00:49:07 [INFO] [actor] [ACT] validate_input: OK -> {'genre': 'classical', 'mood': 'happy', 'energy': 0.9}
+2026-08-05 00:49:07 [INFO] [actor] [ACT] load_catalog: reading data/songs.csv
+2026-08-05 00:49:07 [INFO] [actor] [ACT] load_catalog: loaded 18 songs
+2026-08-05 00:49:07 [INFO] [actor] [ACT] score_and_rank: filtered catalog to 1 songs matching genre=classical
+2026-08-05 00:49:07 [INFO] [actor] [ACT] score_and_rank: produced 1 recommendation(s)
+2026-08-05 00:49:07 [INFO] [actor] [ACT] format_output: formatting 1 recommendation(s)
+2026-08-05 00:49:07 [INFO] [checker] [CHECK] (deterministic) passed=False reason=top score 2.35 clears the threshold on genre match alone, but mood ('melancholy' vs requested 'happy') and energy (diff 0.65) are both a poor fit
+2026-08-05 00:49:07 [WARNING] [agent] === Attempt 1 FAILED check (deterministic layer): top score 2.35 clears the threshold on genre match alone, but mood ('melancholy' vs requested 'happy') and energy (diff 0.65) are both a poor fit ===
+2026-08-05 00:49:07 [INFO] [agent] === Attempt 2/3 for request: "I'm a happy classical music fan feeling energetic" ===
+2026-08-05 00:49:07 [INFO] [planner] Deterministic planner relaxing genre requirement per retry feedback
+2026-08-05 00:49:07 [INFO] [planner] [PLAN] (deterministic_fallback) preferences={'genre': 'classical', 'mood': 'happy', 'energy': 0.9} strategy={'require_genre_match': False, 'k': 5} steps=['validate_input', 'load_catalog', 'score_and_rank', 'format_output']
+2026-08-05 00:49:07 [INFO] [actor] [ACT] executing plan steps: ['validate_input', 'load_catalog', 'score_and_rank', 'format_output']
+2026-08-05 00:49:07 [INFO] [actor] [ACT] validate_input: checking {'genre': 'classical', 'mood': 'happy', 'energy': 0.9}
+2026-08-05 00:49:07 [INFO] [actor] [ACT] validate_input: OK -> {'genre': 'classical', 'mood': 'happy', 'energy': 0.9}
+2026-08-05 00:49:07 [INFO] [actor] [ACT] load_catalog: reading data/songs.csv
+2026-08-05 00:49:07 [INFO] [actor] [ACT] load_catalog: loaded 18 songs
+2026-08-05 00:49:07 [INFO] [actor] [ACT] score_and_rank: produced 5 recommendation(s)
+2026-08-05 00:49:07 [INFO] [actor] [ACT] format_output: formatting 5 recommendation(s)
+2026-08-05 00:49:07 [INFO] [checker] [CHECK] (deterministic) passed=True reason=structural checks passed, top score 1.92
+2026-08-05 00:49:07 [INFO] [checker] [CHECK] llm_semantic_check: skipped (LLM unavailable or response unusable)
+2026-08-05 00:49:07 [INFO] [checker] [CHECK] (skipped) passed=True reason=LLM semantic check unavailable; deterministic pass stands
+2026-08-05 00:49:07 [INFO] [agent] === Attempt 2 PASSED check (skipped layer) ===
+
+============================================================
+Request: 'I want upbeat happy pop songs for a workout'
+Verified: True (after 1 attempt(s))
+============================================================
+🎵 Sunrise City by Neon Echo
+Genre: pop | Mood: happy
+Score: 3.92
+Why: Genre match (+2.0), Mood match (+1.0), Energy similarity (+0.92)
+------------------------------------------------------------
+🎵 Gym Hero by Max Pulse
+Genre: pop | Mood: intense
+Score: 2.97
+Why: Genre match (+2.0), Energy similarity (+0.97)
+------------------------------------------------------------
+
+============================================================
+Request: 'Something chill and relaxed for studying, lofi vibes'
+Verified: True (after 1 attempt(s))
+============================================================
+🎵 Library Rain by Paper Lanterns
+Genre: lofi | Mood: chill
+Score: 3.95
+Why: Genre match (+2.0), Mood match (+1.0), Energy similarity (+0.95)
+------------------------------------------------------------
+🎵 Midnight Coding by LoRoom
+Genre: lofi | Mood: chill
+Score: 3.88
+Why: Genre match (+2.0), Mood match (+1.0), Energy similarity (+0.88)
+------------------------------------------------------------
+🎵 Focus Flow by LoRoom
+Genre: lofi | Mood: focused
+Score: 2.90
+Why: Genre match (+2.0), Energy similarity (+0.90)
+------------------------------------------------------------
+
+============================================================
+Request: 'Deep intense rock to get pumped up'
+Verified: True (after 1 attempt(s))
+============================================================
+🎵 Storm Runner by Voltline
+Genre: rock | Mood: intense
+Score: 3.99
+Why: Genre match (+2.0), Mood match (+1.0), Energy similarity (+0.99)
+------------------------------------------------------------
+
+============================================================
+Request: "I'm a happy classical music fan feeling energetic"
+Verified: True (after 2 attempt(s))
+============================================================
+🎵 Sunrise City by Neon Echo
+Genre: pop | Mood: happy
+Score: 1.92
+Why: Mood match (+1.0), Energy similarity (+0.92)
+------------------------------------------------------------
+🎵 Rooftop Lights by Indigo Parade
+Genre: indie pop | Mood: happy
+Score: 1.86
+Why: Mood match (+1.0), Energy similarity (+0.86)
+------------------------------------------------------------
+🎵 Storm Runner by Voltline
+Genre: rock | Mood: intense
+Score: 0.99
+Why: Energy similarity (+0.99)
+------------------------------------------------------------
+🎵 Gym Hero by Max Pulse
+Genre: pop | Mood: intense
+Score: 0.97
+Why: Energy similarity (+0.97)
+------------------------------------------------------------
+🎵 Iron Horizon by Grave Signal
+Genre: metal | Mood: angry
+Score: 0.95
+Why: Energy similarity (+0.95)
+------------------------------------------------------------
