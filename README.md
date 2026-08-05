@@ -6,6 +6,8 @@ This project is a simple content-based music recommender system built in Python.
 
 It has been extended with an **agentic Plan → Act → Check workflow**: instead of calling the recommender directly, a free-text request goes through a Planner (interprets the request and builds a step-by-step plan), an Actor (executes each step), and a Checker (verifies the output and triggers a retry with a revised plan if it fails). See [Agentic Workflow](#agentic-workflow) below.
 
+See [TRUSTWORTHINESS.md](TRUSTWORTHINESS.md) for a full explanation of the system's reasoning and why it can be trusted, including specific bugs found and fixed while verifying the guardrails.
+
 ---
 
 ## System Architecture
