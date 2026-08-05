@@ -1,5 +1,11 @@
 # 🎵 Music Recommender Simulation
 
+## Original Project
+
+This extends **Music Recommender Simulation** (`ai110-module3show-musicrecommendersimulation-starter`), a Module 3 project. The original project was a content-based recommender that scores songs by how closely their genre, mood, and energy match a user's stated preferences, then returns the top-scoring songs with a plain-language explanation of why each was picked. That scoring engine is unchanged in this version — see `src/recommender.py`.
+
+This project wraps that unchanged engine in an agentic **Plan → Act → Check** workflow (see below), so a free-text request is now planned, executed in discrete steps, and verified before being returned, with an automatic retry if verification fails.
+
 ## Project Summary
 
 This project is a simple content-based music recommender system built in Python. It recommends songs by comparing a user's preferred genre, mood, and energy level with the attributes of songs in a small music catalog. Each song receives a score based on how closely it matches the user's preferences, and the highest scoring songs are recommended along with a short explanation of why they were selected.
@@ -80,6 +86,18 @@ Every plan, action, and check decision is logged with a timestamp, both to the c
 
 ---
 
+## Design Decisions
+
+**Why the Planner/Checker are hybrid deterministic+LLM, not LLM-only.** `src/planner.py` and `src/checker.py` both try an LLM call first (via `src/llm_client.py`) and fall back to deterministic logic — keyword matching in the Planner, structural checks in the Checker — whenever the API key is missing, the call fails, or the response doesn't parse. An LLM-only design would make the whole agent's correctness depend on network availability and non-deterministic output, which conflicts with `tests/test_agent.py` needing to be 100% reproducible without an API key (see its `no_llm` fixture, which forces every test onto the deterministic path). The tradeoff is real: the deterministic Planner's keyword matching is cruder than what an LLM could infer from a nuanced request, but the system stays runnable and testable either way.
+
+**Why deterministic checks run before the optional LLM check.** `checker.run_checks` calls `deterministic_check` first and only calls `llm_semantic_check` if that passes. Deterministic checks are free, instant, and can't fail from a network issue, so they catch the failure modes that don't need judgment at all — empty results, out-of-range scores, blank explanations, a genre-only match with a poor mood/energy fit — before spending an API call on a result that's already known to be structurally broken.
+
+**Why `MAX_ATTEMPTS` is capped at 3 in `agent.py`.** The retry loop's whole purpose is to let the Planner relax a specific over-constraint (e.g. dropping `require_genre_match`) in response to the Checker's feedback. In practice that fix either works on the very next attempt (as the sample logs show) or the request is asking for something the 18-song catalog genuinely doesn't have — more attempts wouldn't change that. 3 gives the loop one real correction attempt plus a margin, while still bounding worst-case latency and API spend to a small, fixed number of calls per request.
+
+**Why `src/recommender.py` was left unmodified.** The Actor (`src/actor.py`) only calls `load_songs` and `recommend_songs` from the original module — it doesn't reimplement or duplicate their scoring logic. This keeps the original, already-tested scoring engine (and `tests/test_recommender.py`, which covers it) as a stable foundation that the agentic layer wraps rather than rewrites, so the two can be reasoned about and graded independently: "this is the original recommender, unchanged" vs. "this is the new agentic layer around it."
+
+---
+
 ## Getting Started
 
 ### Setup
@@ -143,6 +161,23 @@ pytest
 ```
 
 `tests/test_recommender.py` covers the original scoring logic. `tests/test_agent.py` covers the Plan → Act → Check loop end-to-end, including the retry case, with the LLM layer stubbed out so the suite is fully reproducible without an API key or network access.
+
+### Testing Summary
+
+Running `pytest` right now: **8 passed, 0 failed** in 0.09s.
+
+| Test | File | What it verifies |
+|---|---|---|
+| `test_normal_request_passes_on_first_attempt` | `tests/test_agent.py` | A well-matched request passes the Checker on attempt 1, no retry. |
+| `test_edge_case_fails_first_attempt_then_retries_and_passes` | `tests/test_agent.py` | A genre-only match with poor mood/energy fit fails attempt 1, the Planner relaxes `require_genre_match`, and attempt 2 passes. |
+| `test_blank_request_raises_value_error` | `tests/test_agent.py` | A blank/whitespace-only request raises `ValueError` instead of running the pipeline. |
+| `test_validate_input_rejects_out_of_range_energy` | `tests/test_agent.py` | `validate_input` raises `ActorError` when `energy` is outside `[0, 1]`. |
+| `test_validate_input_rejects_missing_keys` | `tests/test_agent.py` | `validate_input` raises `ActorError` when a required preference key is missing. |
+| `test_load_catalog_rejects_missing_file` | `tests/test_agent.py` | `load_catalog` raises `ActorError` for a nonexistent CSV path instead of an unhandled `FileNotFoundError`. |
+| `test_recommend_returns_songs_sorted_by_score` | `tests/test_recommender.py` | The OOP `Recommender.recommend()` returns results sorted with the best genre/mood/energy match first. |
+| `test_explain_recommendation_returns_non_empty_string` | `tests/test_recommender.py` | `Recommender.explain_recommendation()` returns a non-empty explanation string. |
+
+**Manual verification:** beyond the automated suite, I ran the agent end-to-end with `python -m src.main`, inspected the real `logs/run_*.log` output rather than trusting what the code was supposed to log, and found 4 issues where the *reported* behavior (a check passing, a retry happening, an input being rejected) didn't match the *actual* behavior — all fixed before submission. See [TRUSTWORTHINESS.md](TRUSTWORTHINESS.md) for the specifics of each one.
 
 ---
 
@@ -219,6 +254,38 @@ Why: Mood match (+1.0), Energy similarity (+0.92)
 ```
 
 Full timestamped logs for every run are written to `logs/run_<UTC timestamp>.log`.
+
+### Sample Agentic Run (first attempt passes)
+
+For contrast, here's the normal case — `python -m src.main "I want upbeat happy pop songs for a workout"` with no `ANTHROPIC_API_KEY` set. The deterministic Planner's keyword parser matches "pop" and "happy" directly, the genre filter finds real matches, and the Checker passes on attempt 1 with no retry needed:
+
+```text
+=== Attempt 1/3 for request: 'I want upbeat happy pop songs for a workout' ===
+[PLAN] (deterministic_fallback) preferences={'genre': 'pop', 'mood': 'happy', 'energy': 0.9}
+       strategy={'require_genre_match': True, 'k': 5}
+[ACT] validate_input: OK -> {'genre': 'pop', 'mood': 'happy', 'energy': 0.9}
+[ACT] load_catalog: loaded 18 songs
+[ACT] score_and_rank: filtered catalog to 2 songs matching genre=pop
+[ACT] format_output: formatting 2 recommendation(s)
+[CHECK] (deterministic) passed=True reason=structural checks passed, top score 3.92
+[CHECK] llm_semantic_check: skipped (LLM unavailable or response unusable)
+=== Attempt 1 PASSED check (skipped layer) ===
+
+============================================================
+Request: 'I want upbeat happy pop songs for a workout'
+Verified: True (after 1 attempt(s))
+============================================================
+🎵 Sunrise City by Neon Echo
+Genre: pop | Mood: happy
+Score: 3.92
+Why: Genre match (+2.0), Mood match (+1.0), Energy similarity (+0.92)
+------------------------------------------------------------
+🎵 Gym Hero by Max Pulse
+Genre: pop | Mood: intense
+Score: 2.97
+Why: Genre match (+2.0), Energy similarity (+0.97)
+------------------------------------------------------------
+```
 
 ---
 
