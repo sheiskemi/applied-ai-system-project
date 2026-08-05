@@ -1,4 +1,4 @@
-﻿flowchart TD
+flowchart TD
     U[User: free-text request] --> P
 
     subgraph Plan["PLAN - src/planner.py"]
@@ -30,10 +30,19 @@
     PASS --> OUT[Final recommendations to user]
     FAIL --> R{Attempts less than MAX_ATTEMPTS 3?}
     R -->|yes| RP[Re-plan: e.g. relax genre constraint]
-    RP --> A1
+    RP --> P
     R -->|no| GIVEUP[Return best-effort result + failure log]
 
     L[(Logger: timestamps for every plan/act/check/retry event)]
     Plan -.-> L
     Act -.-> L
     Check -.-> L
+
+    subgraph Human["HUMAN / TEST VERIFICATION - tests/test_agent.py"]
+        T1[pytest: automated regression tests on plan-act-check-retry loop]
+        T2[Manual log inspection: developer reviewed real run logs]
+    end
+
+    OUT -.verified pre-submission by.-> Human
+    GIVEUP -.verified pre-submission by.-> Human
+    T2 -.found and fixed 3 guardrail bugs.-> Check
