@@ -59,3 +59,25 @@ In the future, I would include more song features such as danceability, tempo, a
 ## 9. Personal Reflection
 
 This project helped me understand how recommendation systems compare user preferences with item features to generate personalized suggestions. My biggest learning moment was seeing how changing the scoring weights affected the recommendations, even with a simple algorithm. AI tools helped me generate ideas, debug my code, and understand different approaches, but I still needed to test the code and verify that the recommendations made sense. I was surprised that such a simple scoring system could produce recommendations that felt relevant to different user profiles. If I continued this project, I would expand the dataset, include more song features, and experiment with more advanced recommendation techniques.
+
+---
+
+## 10. Responsible AI Collaboration & Reflection (Final Project Extension)
+
+### How I collaborated with AI
+
+For the final project extension, I used Claude Code to build the agentic Plan → Act → Check workflow wrapped around this recommender (see `src/planner.py`, `src/actor.py`, `src/checker.py`, `src/agent.py`). My process was: have Claude Code first explore the existing codebase (recommender logic, file structure, what was already run and tested) before writing anything, then propose and build the planner/actor/checker/agent module split based on what it found, then review its output myself rather than accepting it as-is. That review step mattered — running the code and reading the actual logs, not just trusting the generated code and docstrings, is what surfaced the four issues described below.
+
+### A helpful AI suggestion
+
+Claude Code proposed splitting the Checker (`src/checker.py`) into two layers: a deterministic layer (non-empty results, valid score range, catching a genre-only match with a poor mood/energy fit) that always runs and needs no API key, and an optional LLM semantic layer that only runs on top of that if the deterministic layer already passed. I think this was a good call: it means the system's core correctness guarantees don't depend on network access or an API key at all, and it made `tests/test_agent.py` able to run fully offline and deterministically (see its `no_llm` fixture) instead of needing a mocked or live LLM to test the retry logic. The optional LLM layer adds judgment on top, but it's additive rather than load-bearing.
+
+### A flawed AI suggestion that needed correction
+
+The initial implementation had a real bug in the retry loop that I only caught by comparing the *logged* behavior against the *actual* behavior, not by reading the code alone. When the Checker rejected an attempt for a poor mood/energy fit, the Agent had the Planner "relax" the strategy (`require_genre_match: False`) and retry — but the Actor's `score_and_rank` was still passing the *original* requested genre into the scoring function. Since `score_song` awards a genre-match bonus to any song matching that genre string regardless of the strategy, the one strong genre match kept winning on every attempt, so attempt 2 and attempt 3 produced the exact same result as attempt 1. The logs said `=== Attempt 2/3 ===` and looked like the system was retrying, but nothing about the actual output had changed — it would have failed identically all the way to `MAX_ATTEMPTS` and returned `verified=False` without ever benefiting from the re-plan. I caught this by running the agent end-to-end on the classical/happy edge case, reading the real log output line by line, and noticing the top recommendation and score were identical across "different" attempts. The fix was in `src/actor.py`: when the strategy relaxes the genre requirement, the scoring call now also strips genre out of the preferences passed to `recommend_songs`, so mood and energy can actually differentiate the results on retry. Full details are in [TRUSTWORTHINESS.md](TRUSTWORTHINESS.md).
+
+### Limitations of the extended system
+
+- The LLM-backed Planner and semantic Checker are optional. Without an `ANTHROPIC_API_KEY`, the system runs entirely on the deterministic fallback, and that fallback's keyword parsing is meaningfully weaker than what an LLM could infer from a nuanced, free-text request.
+- `MAX_ATTEMPTS = 3` is a fixed cap chosen for this project. It hasn't been tuned or validated against a larger, more varied set of edge cases beyond the one demonstrated in the sample logs.
+- The underlying recommendation logic is unchanged from the original project: it still scores only on genre, mood, and energy against an 18-song catalog, so the agentic layer can retry and re-plan around a bad match, but it can't invent a better song than what's already in the catalog.
